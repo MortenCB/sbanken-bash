@@ -38,9 +38,9 @@ for i in $(seq 0 $(($matches-1)))
 do
    documentType=$(echo $efakturas | jq -r ".items[$i].documentType")
    date=$(echo $efakturas | jq -r ".items[$i].originalDueDate")
-	date=$(date -d "$(echo $date | sed 's/T/ /; s/+.*//')" '+%Y-%m-%d')
-	amount=$(echo $efakturas | jq -r ".items[$i].originalAmount")
-	amount=${amount//./,}
-	issuerName=$(echo $efakturas | jq -r ".items[$i].issuerName")
+   date=$(date -d "$(echo $date | sed 's/T/ /; s/+.*//')" '+%Y-%m-%d')
+   amount=$(echo $efakturas | jq -r ".items[$i].originalAmount")
+   amount=${amount//./,}
+   issuerName=$(echo $efakturas | jq -r ".items[$i].issuerName")
    printf "%-12s\t%-35s\t%'10.2f\t%-20s\n" "$documentType" "$issuerName" $amount "$date"
 done
