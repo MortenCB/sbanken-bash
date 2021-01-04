@@ -21,8 +21,8 @@ source ${DIR}/mapping.inc
 
 # Check for number of arguments, need at least one:
 if [ $# -lt 1 ]; then
-   echo "This script takes at least one agrument. First one is abbreviation for account (according to ~/.sbanken.map), optional second is number of transactions to show (default is 10 latest)."
-        exit 1
+   echo "This script takes at least one argument. First one is abbreviation for account (according to ~/.sbanken.map), optional second is number of transactions to show (default is 10 latest)."
+   exit 1
 fi
 
 accountIN=$1
@@ -36,7 +36,7 @@ fi
 aliasToAccountID $accountIN
 if [ "$aID" = "ERROR" ]; then
    echo "Could not convert account abbreviation to accountID.  Please check ~/.sbanken.map."
-        exit 1
+   exit 1
 fi
 
 accountID=$aID
@@ -75,12 +75,12 @@ echo "--------------------------------------------------------------------------
 for i in $(seq 0 $(($numTrans-1)))
 do
    text=$(echo $transactions | jq -r ".items[$i].text")
-        amount=$(echo $transactions | jq -r ".items[$i].amount")
-        amount=${amount//./,}
-        trType=$(echo $transactions | jq -r ".items[$i].transactionType")
-        accDate=$(echo $transactions | jq -r ".items[$i].accountingDate")
-        accDate=$(date -d "$(echo $accDate | sed 's/T/ /; s/+.*//')" '+%Y-%m-%d')
-        intDate=$(echo $transactions | jq -r ".items[$i].interestDate")
-        intDate=$(date -d "$(echo $intDate | sed 's/T/ /; s/+.*//')" '+%Y-%m-%d')
-        printf "%-12s\t%-18s\t%-50s\t%'10.2f\n" "$accDate" "$trType" "$text" $amount
+   amount=$(echo $transactions | jq -r ".items[$i].amount")
+   amount=${amount//./,}
+   trType=$(echo $transactions | jq -r ".items[$i].transactionType")
+   accDate=$(echo $transactions | jq -r ".items[$i].accountingDate")
+   accDate=$(date -d "$(echo $accDate | sed 's/T/ /; s/+.*//')" '+%Y-%m-%d')
+   intDate=$(echo $transactions | jq -r ".items[$i].interestDate")
+   intDate=$(date -d "$(echo $intDate | sed 's/T/ /; s/+.*//')" '+%Y-%m-%d')
+   printf "%-12s\t%-18s\t%-50s\t%'10.2f\n" "$accDate" "$trType" "$text" $amount
 done
