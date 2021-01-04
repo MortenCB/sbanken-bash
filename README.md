@@ -1,7 +1,7 @@
 # sbanken-bash
 Bash scripts to do your banking with Sbanken (norwegian bank) through their official APIs.
 
-1. Go to sbanken and opt in for their beta bank
+1. Go to sbanken and opt in for their beta bank in your settings
 2. Login to the api at https://secure.sbanken.no/Personal/ApiBeta/Info
 3. Get your API key and app password
 4. Make ~/sbanken_auth with the following variables:
