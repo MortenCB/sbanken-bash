@@ -22,11 +22,11 @@ token=$(curl -q -u "$clientId:$secret" -H "$acceptHeader" -H "$contentTypeHeader
 
 # List out efakturas
 efakturas=$(curl -q -H "customerId: $userId" -H "Authorization: Bearer $token" "https://api.sbanken.no/exec.bank/api/v1/Efakturas"  2>/dev/null)
-matches=$(echo $efakturas | jq -r .availableItems)
+matches=$(echo "$efakturas" | jq -r .availableItems)
 
 
 # Check if there are any:
-if [ $matches -lt 1 ]; then
+if [ "$matches" -lt 1 ]; then
    echo "No efakturas."
    exit 0
 fi
@@ -36,14 +36,14 @@ printf "%-12s\t%-35s\t%10s\t%-12s\t%-20s\n" "Document type" "From" "Amount" "Due
 echo "-------------------------------------------------------------------------------------------------"
 
 # Print out efakturas details:
-for i in $(seq 0 $(($matches-1)))
+for i in $(seq 0 $(("$matches"-1)))
 do
-   documentType=$(echo $efakturas | jq -r ".items[$i].documentType")
-   date=$(echo $efakturas | jq -r ".items[$i].originalDueDate")
-   date=$(date -d "$(echo $date | sed 's/T/ /; s/+.*//')" '+%Y-%m-%d')
-   amount=$(echo $efakturas | jq -r ".items[$i].originalAmount")
+   documentType=$(echo "$efakturas" | jq -r ".items[$i].documentType")
+   date=$(echo "$efakturas" | jq -r ".items[$i].originalDueDate")
+   date=$(date -d "$(echo "$date" | sed 's/T/ /; s/+.*//')" '+%Y-%m-%d')
+   amount=$(echo "$efakturas" | jq -r ".items[$i].originalAmount")
    amount=${amount//./,}
-   issuerName=$(echo $efakturas | jq -r ".items[$i].issuerName")
-   status=$(echo $efakturas | jq -r ".items[$i].status")
-   printf "%-12s\t%-35s\t%'10.2f\t%-12s\t%-20s\n" "$documentType" "$issuerName" $amount "$date" "$status"
+   issuerName=$(echo "$efakturas" | jq -r ".items[$i].issuerName")
+   status=$(echo "$efakturas" | jq -r ".items[$i].status")
+   printf "%-12s\t%-35s\t%'10.2f\t%-12s\t%-20s\n" "$documentType" "$issuerName" "$amount" "$date" "$status"
 done

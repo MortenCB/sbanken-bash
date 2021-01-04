@@ -7,11 +7,11 @@
 function aliasToAccountID () {
    local alias
    alias=$1
-   l=`grep "^${alias}:" ~/.sbanken.map 2> /dev/null`
+   l=$(grep "^${alias}:" ~/.sbanken.map 2> /dev/null)
    if [ $? -ne 0 ]; then
       aID="ERROR"
       return 1
    fi
-   aID=`echo "${l}"|cut -d ':' -f 2 2> /dev/null`
+   aID=$(echo "${l}"|cut -d ':' -f 2 2> /dev/null)
    return 0
 }

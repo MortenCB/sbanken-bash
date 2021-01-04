@@ -22,18 +22,18 @@ token=$(curl -q -u "$clientId:$secret" -H "$acceptHeader" -H "$contentTypeHeader
 
 # Get accounts:
 accounts=$(curl -q -H "customerId: $userId" -H "Authorization: Bearer $token" "https://api.sbanken.no/exec.bank/api/v1/Accounts"  2>/dev/null)
-matches=$(echo $accounts|jq -r .availableItems)
+matches=$(echo "$accounts" | jq -r .availableItems)
 
 # Print out header:
 printf "%-20s\t%-11s\t%-10s\n" "Account name" "Account number" "  Balance"
 echo "--------------------------------------------------"
 
 # Print out accounts:
-for i in $(seq 0 $(($matches - 1)))
+for i in $(seq 0 $(("$matches" - 1)))
 do
-    accountNumber=$(echo $accounts | jq -r ".items[$i].accountNumber")
-    balance=$(echo $accounts | jq -r ".items[$i].balance")
+    accountNumber=$(echo "$accounts" | jq -r ".items[$i].accountNumber")
+    balance=$(echo "$accounts" | jq -r ".items[$i].balance")
     balance=${balance//./,}
-    name=$(echo $accounts | jq -r ".items[$i].name")
-    printf "%-20.23s\t%-11s\t%'10.2f\n" "$name" "$accountNumber" $balance
+    name=$(echo "$accounts" | jq -r ".items[$i].name")
+    printf "%-20.23s\t%-11s\t%'10.2f\n" "$name" "$accountNumber" "$balance"
 done

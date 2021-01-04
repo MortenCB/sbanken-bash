@@ -17,7 +17,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # This file contains code to convert short abbreviations to the correct account.
 # Please edit the "~/.sbanken.map" file to insert your own mapping from short name to accountID.
 # See the mapping.inc file for the format.
-source ${DIR}/mapping.inc
+source "${DIR}/mapping.inc"
 
 # Check for number of arguments, need at least one:
 if [ $# -lt 1 ]; then
@@ -33,13 +33,13 @@ else
 fi
 
 # Translate account abbreviation to accountID accoring to the mapping.map file:
-aliasToAccountID $accountIN
+aliasToAccountID "$accountIN"
 if [ "$aID" = "ERROR" ]; then
    echo "Could not convert account abbreviation to accountID.  Please check ~/.sbanken.map."
    exit 1
 fi
 
-accountID=$aID
+accountID="$aID"
 
 # headers
 acceptHeader='Accept: application/json'
@@ -52,25 +52,25 @@ token=$(curl -q -u "$clientId:$secret" -H "$acceptHeader" -H "$contentTypeHeader
 
 # List out account information for chose account as a header
 account=$(curl -q -H "customerId: $userId" -H "Authorization: Bearer $token" "https://api.sbanken.no/exec.bank/api/v1/Accounts/$accountID"  2>/dev/null)
-matches=$(echo $account|jq -r .item)
+matches=$(echo "$account" | jq -r .item)
 
-name=$(echo $matches | jq -r ".name")
-accountNumber=$(echo $matches | jq -r ".accountNumber")
-available=$(echo $matches | jq -r ".available")
+name=$(echo "$matches" | jq -r ".name")
+accountNumber=$(echo "$matches" | jq -r ".accountNumber")
+available=$(echo "$matches" | jq -r ".available")
 available=${available//./,}
-balance=$(echo $matches | jq -r ".balance")
+balance=$(echo "$matches" | jq -r ".balance")
 balance=${balance//./,}
 
-echo -e $name '\t' $accountNumber '\t' $available '\t' $balance
+echo -e "$name" '\t' "$accountNumber" '\t' "$available" '\t' "$balance"
 echo "------------------------------------------------------------"
 echo ""
 
 # List out payments
-payments=$(curl -q -H "customerId: $userId" -H "Authorization: Bearer $token" "https://api.sbanken.no/exec.bank/api/v1/Payments/${accountID}"  2>/dev/null)
-matches=$(echo $payments | jq -r .availableItems)
+payments=$(curl -q -H "customerId: $userId" -H "Authorization: Bearer $token" "https://api.sbanken.no/exec.bank/api/v1/Payments/${accountID}?length=$numTrans"  2>/dev/null)
+matches=$(echo "$payments" | jq -r .availableItems)
 
 # Check if there are any:
-if [ $matches -lt 1 ]; then
+if [ "$matches" -lt 1 ]; then
    echo "No payments."
    exit 0
 fi
@@ -82,15 +82,15 @@ echo "--------------------------------------------------------------------------
 # Print out payments details:
 for i in $(seq 0 $(($matches-1)))
 do
-   recipientAccountNumber=$(echo $payments | jq -r ".items[$i].recipientAccountNumber")
-   amount=$(echo $payments | jq -r ".items[$i].amount")
+   recipientAccountNumber=$(echo "$payments" | jq -r ".items[$i].recipientAccountNumber")
+   amount=$(echo "$payments" | jq -r ".items[$i].amount")
    amount=${amount//./,}
-   date=$(echo $payments | jq -r ".items[$i].dueDate")
-   date=$(date -d "$(echo $date | sed 's/T/ /; s/+.*//')" '+%Y-%m-%d')
-   text=$(echo $payments | jq -r ".items[$i].text")
+   date=$(echo "$payments" | jq -r ".items[$i].dueDate")
+   date=$(date -d "$(echo "$date" | sed 's/T/ /; s/+.*//')" '+%Y-%m-%d')
+   text=$(echo "$payments" | jq -r ".items[$i].text")
    if [ "$text" = "null" ]; then text="";fi;
-   status=$(echo $payments | jq -r ".items[$i].status")
-   beneficiaryName=$(echo $payments | jq -r ".items[$i].beneficiaryName")
+   status=$(echo "$payments" | jq -r ".items[$i].status")
+   beneficiaryName=$(echo "$payments" | jq -r ".items[$i].beneficiaryName")
    if [ "$beneficiaryName" = "null" ]; then beneficiaryName="";fi;
-   printf "%-35s\t%-13s\t%-12s\t%'10.2f\t%-10s\t%-35s\n" "$beneficiaryName" "$recipientAccountNumber" "$date" $amount "$status" "$text"
+   printf "%-35s\t%-13s\t%-12s\t%'10.2f\t%-10s\t%-35s\n" "$beneficiaryName" "$recipientAccountNumber" "$date" "$amount" "$status" "$text"
 done

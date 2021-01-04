@@ -17,7 +17,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # This file contains code to convert short abbreviations to the correct account.
 # Please edit the "~/.sbanken.map" file to insert your own mapping from short name to accountID.
 # See the mapping.inc file for the format.
-source ${DIR}/mapping.inc
+source "${DIR}/mapping.inc"
 
 # Check for number of arguments, need at least one:
 if [ $# -lt 1 ]; then
@@ -33,13 +33,13 @@ else
 fi
 
 # Translate account abbreviation to accountID accoring to the mapping.map file:
-aliasToAccountID $accountIN
+aliasToAccountID "$accountIN"
 if [ "$aID" = "ERROR" ]; then
    echo "Could not convert account abbreviation to accountID.  Please check ~/.sbanken.map."
    exit 1
 fi
 
-accountID=$aID
+accountID="$aID"
 
 # headers
 acceptHeader='Accept: application/json'
@@ -52,16 +52,16 @@ token=$(curl -q -u "$clientId:$secret" -H "$acceptHeader" -H "$contentTypeHeader
 
 # List out account information for chose account as a header
 account=$(curl -q -H "customerId: $userId" -H "Authorization: Bearer $token" "https://api.sbanken.no/exec.bank/api/v1/Accounts/$accountID"  2>/dev/null)
-matches=$(echo $account|jq -r .item)
+matches=$(echo "$account" | jq -r .item)
 
-name=$(echo $matches | jq -r ".name")
-accountNumber=$(echo $matches | jq -r ".accountNumber")
-available=$(echo $matches | jq -r ".available")
+name=$(echo "$matches" | jq -r ".name")
+accountNumber=$(echo "$matches" | jq -r ".accountNumber")
+available=$(echo "$matches" | jq -r ".available")
 available=${available//./,}
-balance=$(echo $matches | jq -r ".balance")
+balance=$(echo "$matches" | jq -r ".balance")
 balance=${balance//./,}
 
-echo -e $name '\t' $accountNumber '\t' $available '\t' $balance
+echo -e "$name" '\t' "$accountNumber" '\t' "$available" '\t' "$balance"
 echo "------------------------------------------------------------"
 echo ""
 
@@ -72,15 +72,15 @@ printf "%-12s\t%-18s\t%-50s\t%12s\n" "Date" "Transaction type" "Text for transac
 echo "----------------------------------------------------------------------------------------------------------"
 
 # Print out last x number of transations:
-for i in $(seq 0 $(($numTrans-1)))
+for i in $(seq 0 $(("$numTrans"-1)))
 do
-   text=$(echo $transactions | jq -r ".items[$i].text")
-   amount=$(echo $transactions | jq -r ".items[$i].amount")
+   text=$(echo "$transactions" | jq -r ".items[$i].text")
+   amount=$(echo "$transactions" | jq -r ".items[$i].amount")
    amount=${amount//./,}
-   trType=$(echo $transactions | jq -r ".items[$i].transactionType")
-   accDate=$(echo $transactions | jq -r ".items[$i].accountingDate")
-   accDate=$(date -d "$(echo $accDate | sed 's/T/ /; s/+.*//')" '+%Y-%m-%d')
-   intDate=$(echo $transactions | jq -r ".items[$i].interestDate")
-   intDate=$(date -d "$(echo $intDate | sed 's/T/ /; s/+.*//')" '+%Y-%m-%d')
-   printf "%-12s\t%-18s\t%-50s\t%'10.2f\n" "$accDate" "$trType" "$text" $amount
+   trType=$(echo "$transactions" | jq -r ".items[$i].transactionType")
+   accDate=$(echo "$transactions" | jq -r ".items[$i].accountingDate")
+   accDate=$(date -d "$(echo "$accDate" | sed 's/T/ /; s/+.*//')" '+%Y-%m-%d')
+   intDate=$(echo "$transactions" | jq -r ".items[$i].interestDate")
+   intDate=$(date -d "$(echo "$intDate" | sed 's/T/ /; s/+.*//')" '+%Y-%m-%d')
+   printf "%-12s\t%-18s\t%-50.50s\t%'10.2f\n" "$accDate" "$trType" "$text" "$amount"
 done
