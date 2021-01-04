@@ -28,7 +28,7 @@ matches=$(echo $efakturas | jq -r .availableItems)
 # Check if there are any:
 if [ $matches -lt 1 ]; then
    echo "No efakturas."
-	exit 0
+   exit 0
 fi
 
 # Print out a header:

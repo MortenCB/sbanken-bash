@@ -72,7 +72,7 @@ matches=$(echo $payments | jq -r .availableItems)
 # Check if there are any:
 if [ $matches -lt 1 ]; then
    echo "No payments."
-	exit 0
+   exit 0
 fi
 
 # Print out a header:
@@ -83,13 +83,13 @@ echo "--------------------------------------------------------------------------
 for i in $(seq 0 $(($matches-1)))
 do
    recipientAccountNumber=$(echo $payments | jq -r ".items[$i].recipientAccountNumber")
-	amount=$(echo $payments | jq -r ".items[$i].amount")
-	amount=${amount//./,}
+   amount=$(echo $payments | jq -r ".items[$i].amount")
+   amount=${amount//./,}
    date=$(echo $payments | jq -r ".items[$i].dueDate")
-	date=$(date -d "$(echo $date | sed 's/T/ /; s/+.*//')" '+%Y-%m-%d')
+   date=$(date -d "$(echo $date | sed 's/T/ /; s/+.*//')" '+%Y-%m-%d')
    text=$(echo $payments | jq -r ".items[$i].text")
    if [ "$text" = "null" ]; then text="";fi;
-	status=$(echo $payments | jq -r ".items[$i].status")
+   status=$(echo $payments | jq -r ".items[$i].status")
    beneficiaryName=$(echo $payments | jq -r ".items[$i].beneficiaryName")
    if [ "$beneficiaryName" = "null" ]; then beneficiaryName="";fi;
    printf "%-35s\t%-13s\t%-12s\t%'10.2f\t%-10s\t%-35s\n" "$beneficiaryName" "$recipientAccountNumber" "$date" $amount "$status" "$text"

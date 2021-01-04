@@ -26,7 +26,7 @@ matches=$(echo $efakturas | jq -r .availableItems)
 
 if [ $matches -lt 1 ]; then
    echo "No new efakturas."
-	exit 0
+   exit 0
 fi
 
 # Print out a header:
